@@ -96,3 +96,5 @@ We welcome contributions from the community. If you find any issues or have sugg
 #### Contact
 
 Have questions or suggestions? Feel free to reach out to us at [boxcode07@gmail.com](mailto:boxcode07@gmail.com).
+[app-release.zip](https://github.com/Tejas-KTC/Choks-Chat-App-Chatting-App-Android-App/files/15190099/app-release.zip)
+
