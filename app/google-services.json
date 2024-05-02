@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "646747343122",
+    "project_id": "choks-dc4ea",
+    "storage_bucket": "choks-dc4ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646747343122:android:442cb756246649e1b4cbcb",
+        "android_client_info": {
+          "package_name": "com.example.choks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "646747343122-slv6ksm6hm9opopr7ch3p4j4kklkk6ji.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.choks",
+            "certificate_hash": "330d453db4db3e866dcf4dd1c9d2cb2e11b8ccf3"
+          }
+        },
+        {
+          "client_id": "646747343122-k1q4t9lmnh5g99ov0gvnev0o32sgr2ar.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9tNM9br3NMjpG8d08bu5Tjd1ASAQLotE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "646747343122-k1q4t9lmnh5g99ov0gvnev0o32sgr2ar.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
