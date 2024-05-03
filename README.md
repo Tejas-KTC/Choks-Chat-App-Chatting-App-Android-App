@@ -6,7 +6,7 @@
 
 Choks is a versatile chat application designed to connect you with friends and other individuals seamlessly. Built using Firebase Realtime Database, it offers secure authentication through Google and email/password login methods. With flexible design, Choks adapts to various mobile phone sizes, ensuring an optimal user experience.
 
-Try out the sample APK [here](https://github.com/Tejas-KTC/Choks-Chat-App-Chatting-App-Android-App/releases/download/v1.0.1/Choks.apk)
+Try out the sample APK [here](https://github.com/Tejas-KTC/Choks-Chat-App-Chatting-App-Android-App/releases/download/v1.0.1/choks.apk)
 ##
 ## Features
 
