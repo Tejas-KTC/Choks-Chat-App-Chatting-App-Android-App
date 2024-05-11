@@ -50,7 +50,7 @@ public class invite extends AppCompatActivity {
                         "Feel free to explore all the features Choks has to offer, including chats, and more. Don't forget to personalize your profile and make it your own!\n\n" +
                         "Happy chatting! 🚀\n\n"+
                         "-By KTC_Tej";
-                String link = "https://yourlink.com";
+                String link = "https://github.com/Tejas-KTC/Choks-Chat-App-Chatting-App-Android-App";
 
                 BitmapDrawable drawable = (BitmapDrawable) getResources().getDrawable(R.drawable.logo);
                 Bitmap bitmap = drawable.getBitmap();
