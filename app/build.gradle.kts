@@ -49,6 +49,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:23.0.0")
     implementation ("com.squareup.retrofit2:retrofit:2.3.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.3.0")
-    implementation ("com.google.firebase:firebase-messaging:17.3.1")
+    implementation ("com.google.firebase:firebase-messaging:24.4.1")
+    implementation ("com.android.volley:volley:1.2.1")
 
 }
