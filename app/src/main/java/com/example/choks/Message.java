@@ -32,8 +32,11 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton;
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -54,8 +57,9 @@ public class Message extends AppCompatActivity {
     DatabaseReference reference;
     private Message_Adapter message_adapter;
     private List<Message_model> messages;
+    ZegoSendCallInvitationButton voiceCall,videoCall;
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint({"MissingInflatedId", "WrongViewCast"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,6 +71,8 @@ public class Message extends AppCompatActivity {
         image_user = findViewById(R.id.msg_profile_image);
         btn_send = findViewById(R.id.btn_send);
         send_txt = findViewById(R.id.send_text);
+        voiceCall = findViewById(R.id.voice_call_btn);
+        videoCall = findViewById(R.id.video_call_btn);
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -202,6 +208,8 @@ public class Message extends AppCompatActivity {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         imageURL = snapshot.child("imageURL").getValue(String.class);
                         recieveruserId = snapshot.getKey();
+                        setVideoCall(recieveruserId);
+                        setVoiceCall(recieveruserId);
                         loadImage(imageURL);
 
                         readMessages(currentUser.getUid(), recieveruserId);
@@ -227,7 +235,19 @@ public class Message extends AppCompatActivity {
                 .into(image_user);
     }
 
+    void setVoiceCall(String targetUserID)
+    {
+        voiceCall.setIsVideoCall(false);
+        voiceCall.setResourceID("zego_uikit_call"); // Please fill in the resource ID name that has been configured in the ZEGOCLOUD's console here.
+        voiceCall.setInvitees(Collections.singletonList(new ZegoUIKitUser(targetUserID)));
+    }
 
+    void setVideoCall(String targetUserID)
+    {
+        videoCall.setIsVideoCall(true);
+        videoCall.setResourceID("zego_uikit_call"); // Please fill in the resource ID name that has been configured in the ZEGOCLOUD's console here.
+        videoCall.setInvitees(Collections.singletonList(new ZegoUIKitUser(targetUserID)));
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -237,4 +257,5 @@ public class Message extends AppCompatActivity {
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         finish();
     }
+
 }

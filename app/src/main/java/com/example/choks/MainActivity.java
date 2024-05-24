@@ -3,6 +3,7 @@ package com.example.choks;
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
 import android.annotation.SuppressLint;
+import android.app.Application;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
@@ -26,6 +27,7 @@ import com.example.choks.Model.User_Data;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +38,9 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig;
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private User_Adapter userAdapter;
     private List<User_Data> userList;
+    private FirebaseUser currentUser;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -69,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
         userAdapter = new User_Adapter(this, userList);
         recyclerView.setAdapter(userAdapter);
 
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String current_userid = currentUser.getUid();
+        start_service(current_userid);
         fetchUsers();
 
         setting.setOnClickListener(new View.OnClickListener() {
@@ -261,5 +270,23 @@ public class MainActivity extends AppCompatActivity {
 
     interface CountCallback {
         void onCountReceived(int count);
+    }
+    public void start_service(String userid)
+    {
+        Application application = getApplication();
+        long appID = 949773437;
+        String appSign = "8e14d70fc5b647ddbd788650325d8d6fc1f4a77d714b88318d7ffba2b078d2c7";
+        String userName = userid;
+
+        ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig();
+
+        ZegoUIKitPrebuiltCallService.init(getApplication(), appID, appSign, userid, userName,callInvitationConfig);
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ZegoUIKitPrebuiltCallInvitationService.unInit();
     }
 }

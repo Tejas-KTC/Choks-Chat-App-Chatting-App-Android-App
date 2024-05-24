@@ -53,6 +53,8 @@ dependencies {
     implementation ("com.squareup.retrofit2:retrofit:2.9.0")
     implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.android.volley:volley:1.2.1")
+    implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+
 
     // Testing dependencies
     testImplementation ("junit:junit:4.13.2")
