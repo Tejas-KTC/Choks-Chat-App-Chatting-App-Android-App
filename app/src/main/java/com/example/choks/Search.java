@@ -116,8 +116,10 @@ public class Search extends AppCompatActivity {
                     String imageURL = snapshot.child("imageURL").getValue(String.class);
                     String username = snapshot.child("username").getValue(String.class);
                     String lastMsgDate = snapshot.child("lastMsgDate").getValue(String.class);
+                    String status = snapshot.child("status").getValue(String.class);
+                    String fcmToken = snapshot.child("token").getValue(String.class);
 
-                    searchResults.add(new User_Data(imageURL, username, lastMsgDate,0));
+                    searchResults.add(new User_Data(imageURL, username, lastMsgDate,0,fcmToken,status));
                 }
 
                 searchAdapter.notifyDataSetChanged();

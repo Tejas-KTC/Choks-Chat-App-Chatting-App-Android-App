@@ -1,5 +1,7 @@
 package com.example.choks;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -33,6 +35,7 @@ import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+        obtainAndStoreFCMToken();
     }
 
     private void fetchUsers() {
@@ -156,11 +160,13 @@ public class MainActivity extends AppCompatActivity {
                             String profileImageUrl = userSnapshot.child("imageURL").getValue(String.class);
                             String username = userSnapshot.child("username").getValue(String.class);
                             String lastMessage = userSnapshot.child("lastMessage").getValue(String.class);
+                            String status = userSnapshot.child("status").getValue(String.class);
+                            String fcmToken = userSnapshot.child("token").getValue(String.class);
 
                             countUnseenMessages(FirebaseAuth.getInstance().getCurrentUser().getUid(), username, new CountCallback() {
                                 @Override
                                 public void onCountReceived(int count) {
-                                    User_Data user = new User_Data(profileImageUrl, username, lastMessage, count);
+                                    User_Data user = new User_Data(profileImageUrl, username, lastMessage, count,fcmToken,status);
                                     userList.add(user);
 
                                     userAdapter.notifyDataSetChanged();
@@ -220,6 +226,37 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void obtainAndStoreFCMToken() {
+        // Get the FCM token
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        String fcmToken = task.getResult();
+                        Log.d("FCM Token", "Token: " + fcmToken);
+
+                        // Store the FCM token in the user's data in the database
+                        storeFCMToken(fcmToken);
+                    } else {
+                        Log.e("FCM Token", "Failed to obtain token: " + task.getException());
+                    }
+                });
+    }
+
+    private void storeFCMToken(String fcmToken) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("token");
+
+        userRef.setValue(fcmToken)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FCM Token", "Token stored successfully");
+                    } else {
+                        Log.e("FCM Token", "Failed to store token: " + task.getException());
+                    }
+                });
     }
 
     interface CountCallback {

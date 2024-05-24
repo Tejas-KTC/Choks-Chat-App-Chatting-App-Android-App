@@ -1,7 +1,6 @@
 package com.example.choks;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,44 +9,35 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.choks.Adapter.Message_Adapter;
-
 import com.example.choks.Model.Message_model;
-
 import com.example.choks.Model.User_Data;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import com.google.firebase.database.ValueEventListener;
-
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.Random;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class Message extends AppCompatActivity {
@@ -71,7 +61,7 @@ public class Message extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message);
 
-        //bind with xml
+        // Bind views with XML
         back_btn = findViewById(R.id.backbtn);
         user_name = findViewById(R.id.msg_username);
         image_user = findViewById(R.id.msg_profile_image);
@@ -93,7 +83,6 @@ public class Message extends AppCompatActivity {
         fetchUserData(username);
         readMessages(currentUser.getUid(), recieveruserId);
 
-
         reference = FirebaseDatabase.getInstance().getReference("Users").child(username);
 
         reference.addValueEventListener(new ValueEventListener() {
@@ -105,30 +94,25 @@ public class Message extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        btn_send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String text = send_txt.getText().toString().trim();
-                if (!text.isEmpty()) {
-                    sendMessage(text);
-                }
+                // Handle error
             }
         });
 
-        back_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Message.this, MainActivity.class);
-                startActivity(intent);
-                overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                finish();
+        btn_send.setOnClickListener(v -> {
+            String text = send_txt.getText().toString().trim();
+            if (!text.isEmpty()) {
+                sendMessage(text);
             }
         });
 
+        back_btn.setOnClickListener(view -> {
+            Intent intent1 = new Intent(Message.this, MainActivity.class);
+            startActivity(intent1);
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+            finish();
+        });
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -146,25 +130,15 @@ public class Message extends AppCompatActivity {
         if (currentUser != null) {
             DatabaseReference userStatusRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid()).child("status");
             userStatusRef.setValue(status)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("UpdateStatus", "User status updated successfully");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.e("UpdateStatus", "Failed to update user status: " + e.getMessage());
-                            Toast.makeText(Message.this, "Failed to update user status: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                    .addOnSuccessListener(aVoid -> Log.d("UpdateStatus", "User status updated successfully"))
+                    .addOnFailureListener(e -> {
+                        Log.e("UpdateStatus", "Failed to update user status: " + e.getMessage());
+                        Toast.makeText(Message.this, "Failed to update user status: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
         } else {
             Log.e("UpdateStatus", "Current user is null");
         }
     }
-
-
 
     private void sendMessage(String message) {
         reference = FirebaseDatabase.getInstance().getReference().child("Chats");
@@ -176,19 +150,11 @@ public class Message extends AppCompatActivity {
         messageMap.put("isseen", false);
 
         reference.push().setValue(messageMap)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        send_txt.setText("");
-                        readMessages(currentUser.getUid(), recieveruserId);
-                    }
+                .addOnSuccessListener(aVoid -> {
+                    send_txt.setText("");
+                    readMessages(currentUser.getUid(), recieveruserId);
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(Message.this, "Failed to send message: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                .addOnFailureListener(e -> Toast.makeText(Message.this, "Failed to send message: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void readMessages(String myId, String userId) {
@@ -209,7 +175,7 @@ public class Message extends AppCompatActivity {
                         Message_model chat = new Message_model(message, sender, receiver, isseen != null ? isseen : false);
                         messages.add(chat);
 
-                        if (receiver.equals(myId) && sender.equals(userId) ) {
+                        if (receiver.equals(myId) && sender.equals(userId)) {
                             snapshot.getRef().child("isseen").setValue(true);
                         }
                     }
@@ -253,7 +219,6 @@ public class Message extends AppCompatActivity {
         });
     }
 
-
     private void loadImage(String imageURL) {
         RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.person_button_svgrepo_com).error(R.mipmap.ic_launcher_round);
         Glide.with(this)
@@ -261,6 +226,7 @@ public class Message extends AppCompatActivity {
                 .apply(requestOptions)
                 .into(image_user);
     }
+
 
     @Override
     public void onBackPressed() {
