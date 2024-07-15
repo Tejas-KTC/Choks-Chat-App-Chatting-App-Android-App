@@ -83,11 +83,12 @@
         android:layout_width="@dimen/_95sdp"
         android:layout_height="@dimen/_95sdp"
         android:src="@drawable/person_button_svgrepo_com"
-        android:transitionName="circleImageTransition"
+        android:transitionName="fade"
         android:layout_marginTop="@dimen/_35sdp"
+        android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout"/>
 
     <ImageView
         android:id="@+id/imageView5"

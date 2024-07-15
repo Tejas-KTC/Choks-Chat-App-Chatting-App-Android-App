@@ -48,30 +48,6 @@
                 android:textSize="@dimen/_13sdp"
                 android:paddingTop="20dp"/>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="20dp">
-
-                <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
-                    android:id="@+id/video_call_btn"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:src="@drawable/video_call_svgrepo_com"
-                    android:paddingTop="20dp"
-                    android:layout_marginTop="18dp"/>
-
-                <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
-                    android:id="@+id/voice_call_btn"
-                    android:layout_width="@dimen/_25sdp"
-                    android:layout_height="@dimen/_25sdp"
-                    android:src="@drawable/phone_call_svgrepo_com"
-                    android:paddingTop="20dp"
-                    android:layout_marginStart="@dimen/_15sdp"
-                    android:layout_marginTop="18dp"/>
-
-            </LinearLayout>
-
         </Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>

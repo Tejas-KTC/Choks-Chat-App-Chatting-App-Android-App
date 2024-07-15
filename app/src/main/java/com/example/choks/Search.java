@@ -105,6 +105,12 @@ public class Search extends AppCompatActivity {
     private void search(String query) {
         searchResults.clear();
 
+        // If the search query is empty, clear the search results and return
+        if (query.isEmpty()) {
+            searchAdapter.notifyDataSetChanged(); // Notify adapter of the change
+            return;
+        }
+
         Query queryRef = usersRef.orderByChild("search")
                 .startAt(query)
                 .endAt(query + "\uf8ff");
@@ -119,7 +125,7 @@ public class Search extends AppCompatActivity {
                     String status = snapshot.child("status").getValue(String.class);
                     String fcmToken = snapshot.child("token").getValue(String.class);
 
-                    searchResults.add(new User_Data(imageURL, username, lastMsgDate,0,fcmToken,status));
+                    searchResults.add(new User_Data(imageURL, username, lastMsgDate, 0, fcmToken, status));
                 }
 
                 searchAdapter.notifyDataSetChanged();
@@ -127,8 +133,9 @@ public class Search extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                // Handle cancellation
             }
         });
     }
+
 }

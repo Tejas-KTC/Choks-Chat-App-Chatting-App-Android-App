@@ -1,11 +1,7 @@
 package com.example.choks;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,8 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.choks.Adapter.User_Adapter;
 import com.example.choks.Model.User_Data;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,14 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.annotations.Nullable;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
-import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig;
-import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationService;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -63,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        //bind with xml
+        Log.d("MainActivity", "onCreate: started");
+
+        // Bind with XML
         setting = findViewById(R.id.menu_btn);
         card_search = findViewById(R.id.main_search);
         recyclerView = findViewById(R.id.user_recylerview);
@@ -76,9 +65,14 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(userAdapter);
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String current_userid = currentUser.getUid();
-        start_service(current_userid);
-        fetchUsers();
+
+        if (currentUser != null) {
+            Log.d("MainActivity", "onCreate: User is authenticated");
+            fetchUsers();
+        } else {
+            Log.d("MainActivity", "onCreate: User is not authenticated, redirecting to login");
+            redirectToLogin();
+        }
 
         setting.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,12 +110,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        obtainAndStoreFCMToken();
     }
 
     private void fetchUsers() {
         DatabaseReference messagesRef = FirebaseDatabase.getInstance().getReference("Chats");
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String currentUserId = currentUser.getUid();
 
         ValueEventListener messageListener = new ValueEventListener() {
             @Override
@@ -132,10 +125,12 @@ public class MainActivity extends AppCompatActivity {
                         String receiverId = messageSnapshot.child("receiver").getValue(String.class);
                         String senderId = messageSnapshot.child("sender").getValue(String.class);
 
-                        if (receiverId.equals(currentUserId)) {
-                            userSet.add(senderId);
-                        } else if (senderId.equals(currentUserId)) {
-                            userSet.add(receiverId);
+                        if (receiverId != null && senderId != null) {
+                            if (receiverId.equals(currentUserId)) {
+                                userSet.add(senderId);
+                            } else if (senderId.equals(currentUserId)) {
+                                userSet.add(receiverId);
+                            }
                         }
                     }
                     Log.d("MainActivity", "Users involved in messages: " + userSet);
@@ -172,10 +167,10 @@ public class MainActivity extends AppCompatActivity {
                             String status = userSnapshot.child("status").getValue(String.class);
                             String fcmToken = userSnapshot.child("token").getValue(String.class);
 
-                            countUnseenMessages(FirebaseAuth.getInstance().getCurrentUser().getUid(), username, new CountCallback() {
+                            countUnseenMessages(currentUser.getUid(), username, new CountCallback() {
                                 @Override
                                 public void onCountReceived(int count) {
-                                    User_Data user = new User_Data(profileImageUrl, username, lastMessage, count,fcmToken,status);
+                                    User_Data user = new User_Data(profileImageUrl, username, lastMessage, count, fcmToken, status);
                                     userList.add(user);
 
                                     userAdapter.notifyDataSetChanged();
@@ -213,8 +208,8 @@ public class MainActivity extends AppCompatActivity {
                                 String senderId = messageSnapshot.child("sender").getValue(String.class);
                                 boolean isSeen = messageSnapshot.child("isseen").getValue(Boolean.class);
 
-                                if ((receiverId.equals(currentUserId) && senderId.equals(userId))) {
-                                    if (!isSeen) {
+                                if (receiverId != null && senderId != null) {
+                                    if ((receiverId.equals(currentUserId) && senderId.equals(userId)) && !isSeen) {
                                         unseenMessageCount++;
                                     }
                                 }
@@ -224,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                            Log.e("MainActivity", "Error counting unseen messages: " + databaseError.getMessage());
                         }
                     });
                 }
@@ -232,61 +227,18 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.e("MainActivity", "Error fetching user data for unseen messages: " + databaseError.getMessage());
             }
         });
     }
 
-    private void obtainAndStoreFCMToken() {
-        // Get the FCM token
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult() != null) {
-                        String fcmToken = task.getResult();
-                        Log.d("FCM Token", "Token: " + fcmToken);
-
-                        // Store the FCM token in the user's data in the database
-                        storeFCMToken(fcmToken);
-                    } else {
-                        Log.e("FCM Token", "Failed to obtain token: " + task.getException());
-                    }
-                });
-    }
-
-    private void storeFCMToken(String fcmToken) {
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .child("token");
-
-        userRef.setValue(fcmToken)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Log.d("FCM Token", "Token stored successfully");
-                    } else {
-                        Log.e("FCM Token", "Failed to store token: " + task.getException());
-                    }
-                });
+    private void redirectToLogin() {
+        Intent intent = new Intent(MainActivity.this, Signin.class);
+        startActivity(intent);
+        finish();
     }
 
     interface CountCallback {
         void onCountReceived(int count);
-    }
-    public void start_service(String userid)
-    {
-        Application application = getApplication();
-        long appID = 949773437;
-        String appSign = "8e14d70fc5b647ddbd788650325d8d6fc1f4a77d714b88318d7ffba2b078d2c7";
-        String userName = userid;
-
-        ZegoUIKitPrebuiltCallInvitationConfig callInvitationConfig = new ZegoUIKitPrebuiltCallInvitationConfig();
-
-        ZegoUIKitPrebuiltCallService.init(getApplication(), appID, appSign, userid, userName,callInvitationConfig);
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        ZegoUIKitPrebuiltCallInvitationService.unInit();
     }
 }

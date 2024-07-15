@@ -1,16 +1,21 @@
 package com.example.choks;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.view.ViewCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Fade;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,6 +45,8 @@ public class Setting extends AppCompatActivity {
     CircleImageView set_image;
     FirebaseUser fuser;
     StorageReference storageReference;
+    CircleImageView imageView;
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,7 @@ public class Setting extends AppCompatActivity {
         card_pass = findViewById(R.id.cardView2);
         card_invite = findViewById(R.id.invite);
         card_help = findViewById(R.id.cardView3);
+        imageView = findViewById(R.id.set_profile);
 
         storageReference = FirebaseStorage.getInstance().getReference("uploads");
 
@@ -133,18 +141,36 @@ public class Setting extends AppCompatActivity {
             }
         });
 
+        Fade fade = new Fade();
+        View decor = getWindow().getDecorView();
+
+        fade.excludeTarget(android.R.id.statusBarBackground, true);
+        fade.excludeTarget(android.R.id.navigationBarBackground, true);
+
+        getWindow().setEnterTransition(fade);
+
+        getWindow().setExitTransition(fade);
+
         card_profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Setting.this, Profile.class);
                 intent.putExtra("Count",1);
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                /*ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         Setting.this,
                         findViewById(R.id.set_profile),
                         "circleImageTransition"
                 );
                     startActivity(intent, options.toBundle());
                     finish();
+                */
+
+
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                        Setting.this, imageView, ViewCompat.getTransitionName(imageView));
+                // starting our activity with below method.
+                startActivity(intent, options.toBundle());
+                finish();
             }
         });
 

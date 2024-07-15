@@ -1,6 +1,7 @@
 package com.example.choks;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
@@ -12,6 +13,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Fade;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
@@ -59,7 +61,7 @@ public class Profile extends AppCompatActivity {
     private Uri imageUri;
     private StorageTask<UploadTask.TaskSnapshot> uploadTask;
     int Count;
-
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @SuppressLint({"MissingInflatedId", "ObsoleteSdkInt"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,14 @@ public class Profile extends AppCompatActivity {
 
         fuser = FirebaseAuth.getInstance().getCurrentUser();
 
+        Fade fade = new Fade();
+        View decor = getWindow().getDecorView();
+
+        fade.excludeTarget(android.R.id.statusBarBackground, true);
+        fade.excludeTarget(android.R.id.navigationBarBackground, true);
+
+        getWindow().setEnterTransition(fade);
+        getWindow().setExitTransition(fade);
 
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(fuser.getUid());
 
@@ -125,7 +135,7 @@ public class Profile extends AppCompatActivity {
         });
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             postponeEnterTransition();
             circleImageView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
@@ -135,7 +145,7 @@ public class Profile extends AppCompatActivity {
                     return true;
                 }
             });
-        }
+        }*/
 
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
